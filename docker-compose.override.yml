@@ -1,0 +1,2 @@
+# Override para desarrollo local — no hace falta para producción
+# Expone el puerto de la API directamente en localhost (igual al API_PORT)
