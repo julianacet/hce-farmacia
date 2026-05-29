@@ -8,7 +8,6 @@ import { useClinica } from '../context/ClinicaContext'
 import { useTema } from '../context/TemaContext'
 import { useAuth } from '../context/AuthContext'
 import FacturaPDF from '../components/pdf/FacturaPDF'
-import FacturaTermicaPDF from '../components/pdf/FacturaTermicaPDF'
 
 export default function Facturas() {
   const qc = useQueryClient()
@@ -52,10 +51,6 @@ export default function Facturas() {
 
   function docPDF(f: Factura) {
     return <FacturaPDF clinica={clinica} factura={f} colorPrimario={tema.colorPrimario} logoBase64={tema.logoBase64} />
-  }
-
-  function docTermica(f: Factura) {
-    return <FacturaTermicaPDF clinica={clinica} factura={f} logoBase64={tema.logoBase64} tamanoTermica={clinica.impresion.termicaFactura} />
   }
 
   async function imprimirTermica(id: string) {

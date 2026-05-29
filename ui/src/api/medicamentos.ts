@@ -11,5 +11,5 @@ export type MedicamentoPredefinido = {
 
 export const listarMedicamentos = (q: string, tipo?: string) =>
   apiFetch<MedicamentoPredefinido[]>(
-    `/medicamentos?q=${encodeURIComponent(q)}${tipo ? `&tipo=${tipo}` : ''}`
+    `/farmacia/medicamentos?q=${encodeURIComponent(q)}${tipo ? `&tipo=${tipo}` : ''}`
   )

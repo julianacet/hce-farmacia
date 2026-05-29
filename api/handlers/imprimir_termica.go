@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"runtime"
@@ -125,12 +127,41 @@ func ImprimirTermicaFactura(db *pgxpool.Pool) http.HandlerFunc {
 // ── Envío a impresora (multiplataforma) ───────────────────────────────────────
 
 func enviarImpresoraFarm(printerName, filePath string) error {
+	// PRINTER_MODE=http → relay HTTP para Docker en Windows
+	if os.Getenv("PRINTER_MODE") == "http" {
+		return enviarHTTPFarm(printerName, filePath)
+	}
+	// Binario nativo en Windows (sin Docker)
 	if runtime.GOOS == "windows" {
 		return enviarWindowsFarm(printerName, filePath)
 	}
 	out, err := exec.Command("lp", "-d", printerName, "-o", "raw", filePath).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%s", strings.TrimSpace(string(out)))
+	}
+	return nil
+}
+
+// enviarHTTPFarm reenvía los bytes ESC/POS al relay de impresión que corre en
+// el host Windows (accesible desde el container vía host.docker.internal).
+func enviarHTTPFarm(printerName, filePath string) error {
+	relayURL := os.Getenv("PRINTER_HTTP_URL")
+	if relayURL == "" {
+		relayURL = "http://host.docker.internal:8765"
+	}
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("error al leer archivo de impresión: %w", err)
+	}
+	target := relayURL + "/print?printer=" + url.QueryEscape(printerName)
+	resp, err := http.Post(target, "application/octet-stream", bytes.NewReader(data))
+	if err != nil {
+		return fmt.Errorf("error al contactar relay de impresión: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("relay respondió %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 	return nil
 }

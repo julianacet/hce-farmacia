@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import { apiFetch } from '../api/client'
 
-export type Rol = 'admin' | 'medico' | 'recepcionista' | 'enfermeria' | 'facturador'
+export type Rol = 'admin' | 'medico' | 'recepcionista' | 'enfermeria' | 'facturador' | 'farmacia'
 
 export type Usuario = {
   id: string

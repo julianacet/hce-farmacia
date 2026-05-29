@@ -1,0 +1,14 @@
+# Sobreescritura para Windows (Docker Desktop + WSL2)
+#
+# Uso — copiar .env.windows.example a .env.windows, completar credenciales y:
+#
+#   docker compose --env-file .env.windows -f docker-compose.yml -f docker-compose.windows.yml up -d --build
+#
+# Requisito: hce-print-relay.exe (de hce-core/print-relay) debe estar
+# corriendo antes de levantar los contenedores.
+
+services:
+  farm-api:
+    environment:
+      PRINTER_MODE: http
+      PRINTER_HTTP_URL: http://host.docker.internal:8765

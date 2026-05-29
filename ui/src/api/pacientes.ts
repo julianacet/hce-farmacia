@@ -9,7 +9,7 @@ export type Paciente = {
 }
 
 export const buscarPacientes = (q: string) =>
-  apiFetch<Paciente[]>(`/pacientes?q=${encodeURIComponent(q)}`)
+  apiFetch<Paciente[]>(`/farmacia/pacientes?q=${encodeURIComponent(q)}`)
 
 export const obtenerPaciente = (documento: string) =>
-  apiFetch<Paciente>(`/pacientes/${documento}`)
+  apiFetch<Paciente>(`/farmacia/pacientes/${documento}`)

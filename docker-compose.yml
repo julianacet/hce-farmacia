@@ -11,6 +11,11 @@ services:
       APP_TZ: ${APP_TZ:-America/Bogota}
       TZ: ${APP_TZ:-America/Bogota}
       PRINTER_TERMICA: ${PRINTER_TERMICA:-}
+      CUPS_SERVER: /run/cups/cups.sock
+      PRINTER_MODE: ${PRINTER_MODE:-cups}
+      PRINTER_HTTP_URL: ${PRINTER_HTTP_URL:-}
+    volumes:
+      - /run/cups/cups.sock:/run/cups/cups.sock
     ports:
       - "${DOCKER_API_PORT:-8010}:${DOCKER_API_PORT:-8010}"
 

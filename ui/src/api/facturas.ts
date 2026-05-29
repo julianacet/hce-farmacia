@@ -45,20 +45,20 @@ export type FacturaInput = {
 
 export const listarFacturas = (params?: Record<string, string>) => {
   const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-  return apiFetch<FacturaResumen[]>(`/facturas${qs}`)
+  return apiFetch<FacturaResumen[]>(`/farmacia/facturas${qs}`)
 }
 
 export const obtenerFactura = (id: string) =>
-  apiFetch<Factura>(`/facturas/${id}`)
+  apiFetch<Factura>(`/farmacia/facturas/${id}`)
 
 export const crearFactura = (data: FacturaInput) =>
-  apiFetch<Factura>('/facturas', { method: 'POST', body: JSON.stringify(data) })
+  apiFetch<Factura>('/farmacia/facturas', { method: 'POST', body: JSON.stringify(data) })
 
 export const anularFactura = (id: string) =>
-  apiFetch<{ estado: string }>(`/facturas/${id}/anular`, { method: 'PATCH' })
+  apiFetch<{ estado: string }>(`/farmacia/facturas/${id}/anular`, { method: 'PATCH' })
 
 export const eliminarFactura = (id: string) =>
-  apiFetch<void>(`/facturas/${id}`, { method: 'DELETE' })
+  apiFetch<void>(`/farmacia/facturas/${id}`, { method: 'DELETE' })
 
 export const imprimirTermicaFactura = (id: string) =>
-  apiFetch<{ estado: string }>(`/facturas/${id}/imprimir-termica`, { method: 'POST' })
+  apiFetch<{ estado: string }>(`/farmacia/facturas/${id}/imprimir-termica`, { method: 'POST' })

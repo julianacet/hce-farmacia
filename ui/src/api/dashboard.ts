@@ -8,4 +8,4 @@ export type DashboardResumen = {
 }
 
 export const obtenerResumen = () =>
-  apiFetch<DashboardResumen>('/dashboard')
+  apiFetch<DashboardResumen>('/farmacia/dashboard')

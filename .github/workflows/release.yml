@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -26,10 +26,18 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ui/package-lock.json
 
+      # Extraer versión del tag (v1.2.3 → 1.2.3)
       - name: Extraer versión
         id: version
+        shell: bash
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
+      # Escribir version.txt con la versión del tag
+      - name: Escribir version.txt
+        shell: bash
+        run: echo "${{ steps.version.outputs.VERSION }}" > windows/version.txt
+
+      # Construir frontend
       - name: Instalar dependencias frontend
         working-directory: ui
         run: npm ci
@@ -37,20 +45,36 @@ jobs:
       - name: Construir frontend
         working-directory: ui
         env:
-          VITE_API_URL: http://localhost:8010
+          VITE_API_URL: http://localhost:8080
         run: npm run build
 
-      - name: Construir imagen Docker API
-        run: docker build -t hce-farmacia-api:${{ steps.version.outputs.VERSION }} ./api
-
-      - name: Construir imagen Docker UI
+      - name: Copiar dist al directorio windows
+        shell: powershell
         run: |
-          docker build \
-            --build-arg VITE_API_URL=http://localhost:8010 \
-            -t hce-farmacia-ui:${{ steps.version.outputs.VERSION }} ./ui
+          if (Test-Path windows\dist-farmacia) { Remove-Item windows\dist-farmacia -Recurse -Force }
+          Copy-Item ui\dist windows\dist-farmacia -Recurse
 
+      # Compilar farm-web.exe (con CGO + WebView2, nativo Windows)
+      - name: Compilar farm-web.exe
+        working-directory: api
+        env:
+          CGO_ENABLED: '1'
+        run: go build -ldflags="-s -w -H=windowsgui" -o ..\windows\farm-web.exe .\cmd\web\main.go
+
+      # Instalar Inno Setup y compilar el instalador
+      - name: Instalar Inno Setup
+        run: choco install innosetup --yes --no-progress
+
+      - name: Compilar instalador
+        shell: powershell
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          & $iscc windows\farm.iss /DMyVersion=${{ steps.version.outputs.VERSION }}
+
+      # Publicar el release con el instalador como artifact
       - name: Publicar release en GitHub
         uses: softprops/action-gh-release@v2
         with:
           name: "HCE Farmacia ${{ steps.version.outputs.VERSION }}"
+          files: windows/HCE-Farmacia-Setup.exe
           generate_release_notes: true

@@ -3,3 +3,5 @@
 ui/.env
 ui/.env.development
 db/data/
+ui/dist/
+windows/dist-farmacia/
