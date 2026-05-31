@@ -27,17 +27,7 @@ export default function Login() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--farm-bg)' }}>
       <div className="card-farm" style={{ padding: '2rem', width: '100%', maxWidth: 380, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            width: 48, height: 48,
-            background: 'var(--farm-primary)',
-            borderRadius: 'var(--farm-radius-lg)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 1rem',
-            fontSize: '1.5rem',
-          }}>
-            💊
-          </div>
-          <h1 className="page-title" style={{ textAlign: 'center' }}>Farmacia HCE</h1>
+          <h1 className="page-title" style={{ textAlign: 'center' }}>Farmacia</h1>
           <p className="page-desc" style={{ textAlign: 'center' }}>Ingresa con tus credenciales del consultorio</p>
         </div>
 

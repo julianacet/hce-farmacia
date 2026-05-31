@@ -18,6 +18,7 @@ DefaultGroupName=HCE Farmacia
 DisableProgramGroupPage=yes
 OutputDir=.
 OutputBaseFilename=HCE-Farmacia-Setup
+SetupIconFile=farm.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -35,6 +36,9 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 ; Binario principal
 Source: "farm-web.exe"; DestDir: "{app}"; Flags: ignoreversion
 
+; Icono de la aplicación (generado en CI desde ui/public/favicon.svg)
+Source: "farm.ico"; DestDir: "{app}"; Flags: ignoreversion
+
 ; Scripts de gestion
 Source: "primera_vez_farmacia.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "actualizar_farmacia.bat";  DestDir: "{app}"; Flags: ignoreversion
@@ -49,9 +53,9 @@ Source: "dist-farmacia\*"; DestDir: "{app}\dist-farmacia"; Flags: ignoreversion 
 Name: "{app}\logs"
 
 [Icons]
-Name: "{group}\Abrir HCE Farmacia";          Filename: "{app}\farm-web.exe"; WorkingDir: "{app}"
+Name: "{group}\Abrir HCE Farmacia";          Filename: "{app}\farm-web.exe"; WorkingDir: "{app}"; IconFilename: "{app}\farm.ico"
 Name: "{group}\Desinstalar HCE Farmacia";    Filename: "{uninstallexe}"
-Name: "{commondesktop}\HCE Farmacia";        Filename: "{app}\farm-web.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{commondesktop}\HCE Farmacia";        Filename: "{app}\farm-web.exe"; WorkingDir: "{app}"; IconFilename: "{app}\farm.ico"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "Crear acceso directo en el escritorio"; GroupDescription: "Iconos adicionales:"
