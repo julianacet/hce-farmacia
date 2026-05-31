@@ -8,6 +8,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/joho/godotenv v1.5.1
+	github.com/webview/webview_go v0.0.0-20240831120633-6173450d4dd6
 	golang.org/x/crypto v0.50.0
 )
 
