@@ -342,5 +342,46 @@ textarea { resize: vertical; }
 .buscador-resultado--activo { background-color: var(--farm-primary) !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   MODO OSCURO
+   Se activa añadiendo la clase farm-oscuro a <html> desde TemaContext.
+   Las variables de color ya las sobreescribe el JS; aquí solo corregimos
+   elementos que usan colores hardcodeados o del sistema.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.farm-oscuro {
+  color-scheme: dark;
+}
+
+.farm-oscuro body {
+  background-color: var(--farm-bg);
+  color: var(--farm-text);
+}
+
+.farm-oscuro .modal-overlay {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.farm-oscuro .modal-box {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.farm-oscuro .btn-secondary:hover:not(:disabled) {
+  background-color: var(--farm-border);
+}
+
+.farm-oscuro .btn-ghost:hover:not(:disabled) {
+  background-color: var(--farm-border);
+}
+
+.farm-oscuro .buscador-resultado:hover {
+  background-color: var(--farm-border);
+}
+
+.farm-oscuro input:-webkit-autofill,
+.farm-oscuro input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--farm-card) inset;
+  -webkit-text-fill-color: var(--farm-text);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    SIDEBAR (sin clase — se mantiene inline para respetar el tema)
    ═══════════════════════════════════════════════════════════════════════════ */
