@@ -14,6 +14,7 @@ type AuthContextType = {
   usuario: Usuario | null
   login: (usuario: string, password: string) => Promise<boolean>
   logout: () => void
+  tieneRol: (...roles: Rol[]) => boolean
 }
 
 type LoginResponse = {
@@ -67,8 +68,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('farm_sesion')
   }
 
+  function tieneRol(...roles: Rol[]): boolean {
+    if (!usuario) return false
+    if (usuario.rol === 'admin') return true
+    return roles.includes(usuario.rol)
+  }
+
   return (
-    <AuthContext.Provider value={{ usuario, login, logout }}>
+    <AuthContext.Provider value={{ usuario, login, logout, tieneRol }}>
       {children}
     </AuthContext.Provider>
   )

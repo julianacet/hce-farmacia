@@ -45,15 +45,8 @@ Source: "version.txt"; DestDir: "{app}"; Flags: ignoreversion
 ; Frontend estatico (generado por construir_windows.sh)
 Source: "dist-farmacia\*"; DestDir: "{app}\dist-farmacia"; Flags: ignoreversion recursesubdirs createallsubdirs
 
-; Esquema de farmacia (solo se usa en primera instalacion)
-Source: "..\db\init.sql"; DestDir: "{app}\db"; Flags: ignoreversion
-
-; Migraciones de esquema (aplicadas en actualizaciones)
-Source: "..\db\migration\migrate_*.sql"; DestDir: "{app}\db\migration"; Flags: ignoreversion skipifsourcedoesntexist
-
 [Dirs]
 Name: "{app}\logs"
-Name: "{app}\db\migration"
 
 [Icons]
 Name: "{group}\Abrir HCE Farmacia";          Filename: "{app}\farm-web.exe"; WorkingDir: "{app}"
@@ -64,7 +57,7 @@ Name: "{commondesktop}\HCE Farmacia";        Filename: "{app}\farm-web.exe"; Wor
 Name: "desktopicon"; Description: "Crear acceso directo en el escritorio"; GroupDescription: "Iconos adicionales:"
 
 [Run]
-; Actualizacion (config.bat existe): aplicar migraciones en silencio
+; Actualizacion (config.bat existe): verificar y confirmar actualizacion
 Filename: "{app}\actualizar_farmacia.bat"; \
     WorkingDir: "{app}"; \
     Flags: shellexec waituntilterminated runhidden; \
@@ -99,37 +92,5 @@ begin
     // Eliminar acceso directo antiguo del escritorio del usuario (creado por primera_vez_farmacia.bat)
     if FileExists(ExpandConstant('{userdesktop}\HCE Farmacia.lnk')) then
       DeleteFile(ExpandConstant('{userdesktop}\HCE Farmacia.lnk'));
-  end;
-end;
-
-function InitializeSetup(): Boolean;
-var
-  HcePath: String;
-  HceFound: Boolean;
-begin
-  Result := True;
-  HceFound := False;
-
-  // Buscar HCE Consultorio via registro (instalacion con Inno Setup)
-  if RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\HCE Consultorio_is1',
-                         'InstallLocation', HcePath) then begin
-    if FileExists(HcePath + 'hce-web.exe') or FileExists(HcePath + '\hce-web.exe') then
-      HceFound := True;
-  end;
-
-  // Buscar en ruta por defecto si el registro no funciono
-  if not HceFound then begin
-    HcePath := ExpandConstant('{autopf}\HCE Consultorio');
-    if FileExists(HcePath + '\hce-web.exe') then
-      HceFound := True;
-  end;
-
-  if not HceFound then begin
-    if MsgBox('No se encontro HCE Consultorio instalado en este equipo.' + #13#10 + #13#10 +
-              'HCE Farmacia requiere que HCE Consultorio este instalado y configurado primero.' + #13#10 + #13#10 +
-              'Puedes continuar, pero deberaas configurar la conexion manualmente.' + #13#10 + #13#10 +
-              'Deseas continuar de todas formas?',
-              mbConfirmation, MB_YESNO) = IDNO then
-      Result := False;
   end;
 end;

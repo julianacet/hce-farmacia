@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { Receipt, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import BannerActualizacion from '../components/BannerActualizacion'
 
 const navItems = [
   { to: '/facturas', label: 'Facturas', icon: Receipt },
@@ -85,8 +86,11 @@ export default function RootLayout() {
         </button>
       </aside>
 
-      <main style={{ flex: 1, overflowY: 'auto' }}>
-        <Outlet />
+      <main style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <BannerActualizacion />
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <Outlet />
+        </div>
       </main>
     </div>
   )

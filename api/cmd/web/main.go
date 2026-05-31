@@ -14,13 +14,16 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 	"unsafe"
@@ -28,7 +31,10 @@ import (
 	webview "github.com/webview/webview_go"
 )
 
-const proxyPort = "8080"
+const (
+	proxyPort  = "8080"
+	githubRepo = "julianacet/hce-farmacia"
+)
 
 func main() {
 	exe, _ := os.Executable()
@@ -95,6 +101,7 @@ func descubrirServidor(timeout time.Duration) (string, error) {
 
 // iniciarProxy levanta un servidor HTTP en localhost:8080 que:
 //   - sirve los archivos estáticos de farmacia desde dist-farmacia/
+//   - responde /local/* con handlers locales (versión, actualización)
 //   - reenvía /api/* al servidor hce-core descubierto
 func iniciarProxy(exeDir, serverURL string) error {
 	target, err := url.Parse(serverURL)
@@ -110,6 +117,9 @@ func iniciarProxy(exeDir, serverURL string) error {
 	}
 
 	mux := http.NewServeMux()
+
+	// Endpoints locales: versión y actualización (NO se proxean a hce-core)
+	mux.Handle("/local/", localHandler(exeDir))
 
 	// Llamadas a la API → proxy al servidor hce-core
 	mux.Handle("/api/", proxy)
@@ -133,6 +143,150 @@ func iniciarProxy(exeDir, serverURL string) error {
 		time.Sleep(200 * time.Millisecond)
 	}
 	return nil
+}
+
+// localHandler maneja /local/version y /local/actualizar.
+func localHandler(exeDir string) http.Handler {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/local/version", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		actual := leerVersionLocal(exeDir)
+		info := versionInfo{Actual: actual}
+
+		gh, err := consultarGitHub()
+		if err != nil {
+			info.Error = "sin conexión a GitHub"
+			responderJSON(w, info)
+			return
+		}
+		info.Disponible = gh.version
+		info.UrlDescarga = gh.urlDescarga
+		info.HayActualizacion = gh.version != "" && gh.version != actual
+		responderJSON(w, info)
+	})
+
+	mux.HandleFunc("/local/actualizar", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		var body struct {
+			URL string `json:"url"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.URL == "" {
+			http.Error(w, `{"error":"url requerida"}`, http.StatusBadRequest)
+			return
+		}
+
+		tmp, err := os.CreateTemp("", "farm-setup-*.exe")
+		if err != nil {
+			http.Error(w, `{"error":"error al crear archivo temporal"}`, http.StatusInternalServerError)
+			return
+		}
+		tmpPath := tmp.Name()
+		tmp.Close()
+
+		client := &http.Client{Timeout: 10 * time.Minute}
+		resp, err := client.Get(body.URL)
+		if err != nil {
+			os.Remove(tmpPath)
+			http.Error(w, `{"error":"error al descargar actualización"}`, http.StatusBadGateway)
+			return
+		}
+		defer resp.Body.Close()
+
+		f, err := os.OpenFile(tmpPath, os.O_WRONLY, 0755)
+		if err != nil {
+			os.Remove(tmpPath)
+			http.Error(w, `{"error":"error al guardar instalador"}`, http.StatusInternalServerError)
+			return
+		}
+		if _, err = io.Copy(f, resp.Body); err != nil {
+			f.Close()
+			os.Remove(tmpPath)
+			http.Error(w, `{"error":"error al guardar instalador"}`, http.StatusInternalServerError)
+			return
+		}
+		f.Close()
+
+		// Lanzar el instalador detached: espera 3s para que el proxy pueda responder,
+		// luego corre el instalador (cerrará farm-web.exe) y borra el temporal.
+		script := fmt.Sprintf(
+			`Start-Sleep -Seconds 3; Start-Process '%s' -ArgumentList '/VERYSILENT','/NORESTART','/CLOSEAPPLICATIONS' -Wait; Remove-Item '%s' -ErrorAction SilentlyContinue`,
+			tmpPath, tmpPath,
+		)
+		cmd := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", script)
+		cmd.Start()
+
+		responderJSON(w, map[string]string{"estado": "instalando"})
+	})
+
+	return mux
+}
+
+func leerVersionLocal(exeDir string) string {
+	data, err := os.ReadFile(filepath.Join(exeDir, "version.txt"))
+	if err != nil {
+		return "dev"
+	}
+	return strings.TrimSpace(string(data))
+}
+
+type versionInfo struct {
+	Actual           string `json:"actual"`
+	Disponible       string `json:"disponible,omitempty"`
+	HayActualizacion bool   `json:"hay_actualizacion"`
+	UrlDescarga      string `json:"url_descarga,omitempty"`
+	Error            string `json:"error,omitempty"`
+}
+
+type ghRelease struct {
+	version     string
+	urlDescarga string
+}
+
+func consultarGitHub() (ghRelease, error) {
+	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", githubRepo)
+	client := &http.Client{Timeout: 5 * time.Second}
+
+	req, _ := http.NewRequest("GET", apiURL, nil)
+	req.Header.Set("Accept", "application/vnd.github+json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return ghRelease{}, err
+	}
+	defer resp.Body.Close()
+
+	var payload struct {
+		TagName string `json:"tag_name"`
+		Assets  []struct {
+			Name               string `json:"name"`
+			BrowserDownloadURL string `json:"browser_download_url"`
+		} `json:"assets"`
+	}
+	if err = json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+		return ghRelease{}, err
+	}
+
+	version := strings.TrimPrefix(payload.TagName, "v")
+	urlDescarga := ""
+	for _, a := range payload.Assets {
+		if strings.HasSuffix(a.Name, ".exe") {
+			urlDescarga = a.BrowserDownloadURL
+			break
+		}
+	}
+	return ghRelease{version: version, urlDescarga: urlDescarga}, nil
+}
+
+func responderJSON(w http.ResponseWriter, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(v)
 }
 
 func spaHandler(root string) http.Handler {
