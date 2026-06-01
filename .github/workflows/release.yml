@@ -54,12 +54,11 @@ jobs:
           if (Test-Path windows\dist-farmacia) { Remove-Item windows\dist-farmacia -Recurse -Force }
           Copy-Item ui\dist windows\dist-farmacia -Recurse
 
-      # Compilar resource.rc → .syso para embeber el icono en farm-web.exe
+      # Embeber icono en farm-web.exe via rsrc (genera .syso, no requiere windres)
       - name: Compilar recursos Windows
-        shell: powershell
+        shell: bash
         run: |
-          $windres = "C:\msys64\mingw64\bin\windres.exe"
-          & $windres windows/resource.rc -O coff -o api/cmd/web/resource.syso
+          go run github.com/akavel/rsrc@latest -ico windows/farm.ico -o api/cmd/web/resource.syso
 
       # Compilar farm-web.exe (con CGO + WebView2, nativo Windows)
       - name: Compilar farm-web.exe
