@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router'
+import { Breadcrumb } from '../components/Breadcrumb'
 import { Plus, Search, Eye, XCircle, Printer, Download, Receipt, Trash2 } from 'lucide-react'
 import { pdf } from '@react-pdf/renderer'
 import { listarFacturas, obtenerFactura, anularFactura, eliminarFactura, imprimirTermicaFactura, type Factura, type FacturaResumen } from '../api/facturas'
@@ -112,6 +113,7 @@ export default function Facturas() {
 
   return (
     <div className="page-farm">
+      <Breadcrumb items={[{ label: 'Inicio', to: '/dashboard' }, { label: 'Facturas' }]} />
       <div className="page-header">
         <h1 className="page-title">Facturas</h1>
         <Link to="/facturas/nueva" className="btn-primary">

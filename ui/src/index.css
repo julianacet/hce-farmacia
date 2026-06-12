@@ -385,3 +385,8 @@ textarea { resize: vertical; }
 /* ═══════════════════════════════════════════════════════════════════════════
    SIDEBAR (sin clase — se mantiene inline para respetar el tema)
    ═══════════════════════════════════════════════════════════════════════════ */
+
+.nav-item-farm:hover {
+  background: rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+}

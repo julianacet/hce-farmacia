@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router'
+import { Breadcrumb } from '../components/Breadcrumb'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2 } from 'lucide-react'
 import { crearFactura, type FacturaItemInput } from '../api/facturas'
@@ -69,6 +70,11 @@ export default function NuevaFactura() {
 
   return (
     <div className="page-farm">
+      <Breadcrumb items={[
+        { label: 'Inicio', to: '/dashboard' },
+        { label: 'Facturas', to: '/facturas' },
+        { label: 'Nueva factura' },
+      ]} />
       <div className="page-header">
         <h1 className="page-title">Nueva factura</h1>
       </div>
