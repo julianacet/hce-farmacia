@@ -43,9 +43,11 @@ export type FacturaInput = {
   items: FacturaItemInput[]
 }
 
+export type FacturasPage = { facturas: FacturaResumen[]; total: number }
+
 export const listarFacturas = (params?: Record<string, string>) => {
   const qs = params ? '?' + new URLSearchParams(params).toString() : ''
-  return apiFetch<FacturaResumen[]>(`/farmacia/facturas${qs}`)
+  return apiFetch<FacturasPage>(`/farmacia/facturas${qs}`)
 }
 
 export const obtenerFactura = (id: string) =>

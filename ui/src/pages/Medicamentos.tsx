@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, Pencil, Plus, Trash2 } from 'lucide-react'
 import { Breadcrumb } from '../components/Breadcrumb'
+import { PaginationFooter } from '../components/PaginationFooter'
 import {
   buscarMedicamentosConPrecio,
   crearTarifaMedicamento,
@@ -13,6 +14,7 @@ import { useDebounced } from '../hooks/useDebounced'
 import { useAuth } from '../context/AuthContext'
 
 type Tipo = 'pos' | 'no_pos' | ''
+const LIMIT = 20
 
 export default function Medicamentos() {
   const { tieneRol } = useAuth()
@@ -21,17 +23,23 @@ export default function Medicamentos() {
 
   const [q, setQ] = useState('')
   const [tipo, setTipo] = useState<Tipo>('')
+  const [page, setPage] = useState(1)
   const qDebounced = useDebounced(q)
+
+  useEffect(() => { setPage(1) }, [qDebounced, tipo])
 
   const [modalMed, setModalMed] = useState<MedicamentoConPrecio | null>(null)
   const [precioInput, setPrecioInput] = useState('')
   const [notasInput, setNotasInput] = useState('')
   const [modalError, setModalError] = useState('')
 
-  const { data: medicamentos = [], isLoading, isError } = useQuery({
-    queryKey: ['medicamentos-precio', qDebounced, tipo],
-    queryFn: () => buscarMedicamentosConPrecio(qDebounced || undefined, tipo || undefined),
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['medicamentos-precio', qDebounced, tipo, page],
+    queryFn: () => buscarMedicamentosConPrecio(qDebounced || undefined, tipo || undefined, page),
   })
+  const medicamentos = data?.medicamentos ?? []
+  const total = data?.total ?? 0
+  const totalPages = Math.max(1, Math.ceil(total / LIMIT))
 
   const mutGuardar = useMutation({
     mutationFn: (med: MedicamentoConPrecio) => {
@@ -129,11 +137,11 @@ export default function Medicamentos() {
       {/* Contador */}
       {!isLoading && !isError && (
         <div style={{ fontSize: 'var(--farm-font-xs)', color: 'var(--farm-text-muted)', marginBottom: '0.625rem' }}>
-          {medicamentos.length} resultado{medicamentos.length !== 1 ? 's' : ''}
+          {total} resultado{total !== 1 ? 's' : ''}
           {medicamentos.length > 0 && (
             <>
               {' · '}
-              <span style={{ color: 'var(--farm-success)' }}>{conPrecio} con precio</span>
+              <span style={{ color: 'var(--farm-success)' }}>{conPrecio} con precio en esta página</span>
               {sinPrecio > 0 && <>{' · '}<span>{sinPrecio} sin tarifa</span></>}
             </>
           )}
@@ -213,6 +221,15 @@ export default function Medicamentos() {
             </tbody>
           </table>
         )}
+        <PaginationFooter
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          limit={LIMIT}
+          isLoading={isLoading}
+          onPageChange={setPage}
+          entityLabel="medicamentos"
+        />
       </div>
 
       {/* Modal asignar / editar tarifa */}

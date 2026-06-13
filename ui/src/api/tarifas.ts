@@ -38,12 +38,14 @@ export type TarifaMedicamentoUpdateInput = {
   notas?: string | null
 }
 
-export async function buscarMedicamentosConPrecio(q?: string, tipo?: 'pos' | 'no_pos'): Promise<MedicamentoConPrecio[]> {
+export type MedicamentosPage = { medicamentos: MedicamentoConPrecio[]; total: number }
+
+export async function buscarMedicamentosConPrecio(q?: string, tipo?: 'pos' | 'no_pos', page = 1): Promise<MedicamentosPage> {
   const params = new URLSearchParams()
   if (q) params.set('q', q)
   if (tipo) params.set('tipo', tipo)
-  const qs = params.toString()
-  return apiFetch(`/farmacia/tarifas-medicamento${qs ? `?${qs}` : ''}`)
+  params.set('page', String(page))
+  return apiFetch(`/farmacia/tarifas-medicamento?${params.toString()}`)
 }
 
 export async function crearTarifaMedicamento(input: TarifaMedicamentoInput): Promise<TarifaMedicamento> {

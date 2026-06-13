@@ -33,7 +33,7 @@ export default function RootLayout() {
         {/* Cabecera */}
         <div style={{ padding: '1.25rem 1rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ fontWeight: 700, fontSize: '0.9375rem', letterSpacing: '-0.01em' }}>
-            Farmacia HCE
+            Farmacia
           </div>
         </div>
 
