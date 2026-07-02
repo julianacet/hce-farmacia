@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router'
+import { Breadcrumb } from '../components/Breadcrumb'
+import { PaginationFooter } from '../components/PaginationFooter'
 import { Plus, Search, Eye, XCircle, Printer, Download, Receipt, Trash2 } from 'lucide-react'
 import { pdf } from '@react-pdf/renderer'
 import { listarFacturas, obtenerFactura, anularFactura, eliminarFactura, imprimirTermicaFactura, type Factura, type FacturaResumen } from '../api/facturas'
@@ -8,6 +10,8 @@ import { useClinica } from '../context/ClinicaContext'
 import { useTema } from '../context/TemaContext'
 import { useAuth } from '../context/AuthContext'
 import FacturaPDF from '../components/pdf/FacturaPDF'
+
+const LIMIT = 20
 
 export default function Facturas() {
   const qc = useQueryClient()
@@ -17,16 +21,23 @@ export default function Facturas() {
   const tema = useTema()
   const [q, setQ] = useState('')
   const [soloAnuladas, setSoloAnuladas] = useState(false)
+  const [page, setPage] = useState(1)
   const [detalle, setDetalle] = useState<Factura | null>(null)
   const [printing, setPrinting] = useState<string | null>(null)
 
-  const { data: facturas = [], isLoading } = useQuery({
-    queryKey: ['facturas', q, soloAnuladas],
+  useEffect(() => { setPage(1) }, [q, soloAnuladas])
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['facturas', q, soloAnuladas, page],
     queryFn: () => listarFacturas({
       ...(q && { q }),
       ...(soloAnuladas && { estado: 'anulada' }),
+      page: String(page),
     }),
   })
+  const facturas: FacturaResumen[] = data?.facturas ?? []
+  const total = data?.total ?? 0
+  const totalPages = Math.max(1, Math.ceil(total / LIMIT))
 
   const mutAnular = useMutation({
     mutationFn: anularFactura,
@@ -112,6 +123,7 @@ export default function Facturas() {
 
   return (
     <div className="page-farm">
+      <Breadcrumb items={[{ label: 'Inicio', to: '/dashboard' }, { label: 'Facturas' }]} />
       <div className="page-header">
         <h1 className="page-title">Facturas</h1>
         <Link to="/facturas/nueva" className="btn-primary">
@@ -244,6 +256,15 @@ export default function Facturas() {
               })}
             </tbody>
           </table>
+          <PaginationFooter
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            limit={LIMIT}
+            isLoading={isLoading}
+            onPageChange={setPage}
+            entityLabel="facturas"
+          />
         </div>
       )}
 

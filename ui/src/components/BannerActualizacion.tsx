@@ -35,7 +35,7 @@ export default function BannerActualizacion() {
         fontSize: '0.8125rem',
       }}>
         <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />
-        <span>Instalando HCE Farmacia {data.disponible}... El módulo se reiniciará en unos segundos.</span>
+        <span>Instalando Farmacia {data.disponible}... El módulo se reiniciará en unos segundos.</span>
       </div>
     )
   }

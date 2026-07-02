@@ -6,6 +6,7 @@ import AppRouter from './router'
 import { AuthProvider } from './context/AuthContext'
 import { TemaProvider } from './context/TemaContext'
 import { ClinicaProvider } from './context/ClinicaContext'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,14 +19,16 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <TemaProvider>
-        <ClinicaProvider>
-          <AuthProvider>
-            <AppRouter />
-          </AuthProvider>
-        </ClinicaProvider>
-      </TemaProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TemaProvider>
+          <ClinicaProvider>
+            <AuthProvider>
+              <AppRouter />
+            </AuthProvider>
+          </ClinicaProvider>
+        </TemaProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </StrictMode>,
 )
