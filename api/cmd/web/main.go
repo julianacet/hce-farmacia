@@ -294,9 +294,20 @@ func spaHandler(root string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := filepath.Join(root, filepath.Clean("/"+r.URL.Path))
 		if info, err := os.Stat(path); err == nil && !info.IsDir() {
+			// Los assets de Vite (dist/assets/*) llevan un hash de contenido en el
+			// nombre, así que son inmutables y se pueden cachear indefinidamente.
+			// Todo lo demás (sobre todo index.html) debe revalidarse siempre: si no,
+			// WebView2 puede seguir sirviendo el bundle viejo después de actualizar,
+			// desincronizado con el backend.
+			if strings.HasPrefix(r.URL.Path, "/assets/") {
+				w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+			} else {
+				w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+			}
 			fs.ServeHTTP(w, r)
 			return
 		}
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		http.ServeFile(w, r, filepath.Join(root, "index.html"))
 	})
 }
