@@ -68,7 +68,7 @@ func main() {
 	defer w.Destroy()
 	w.SetTitle("HCE Farmacia")
 	w.SetSize(1280, 800, webview.HintNone)
-	w.Navigate("http://localhost:" + proxyPort)
+	w.Navigate(fmt.Sprintf("http://localhost:%s/?_t=%d", proxyPort, time.Now().UnixMilli()))
 	w.Run()
 }
 
