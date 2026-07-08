@@ -243,6 +243,23 @@ textarea { resize: vertical; }
 }
 .th-farm--right { text-align: right; }
 
+/* Fila de tabla con hover — usa la variable de tema en vez de un color
+   fijo de Tailwind, así reacciona correctamente al modo oscuro. */
+.fila-farm {
+  transition: background-color 0.15s;
+}
+.fila-farm:hover {
+  background-color: var(--farm-bg);
+}
+
+/* Thead sticky para scroll vertical — aplicar en <thead> */
+.thead-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--farm-bg);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    BADGES DE ESTADO
    ═══════════════════════════════════════════════════════════════════════════ */

@@ -1,12 +1,13 @@
 import { NavLink, Outlet, useNavigate } from 'react-router'
-import { LayoutDashboard, Receipt, FlaskConical, LogOut } from 'lucide-react'
+import { LayoutDashboard, Receipt, FlaskConical, ClipboardList, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import BannerActualizacion from '../components/BannerActualizacion'
 
 const navItems = [
   { to: '/dashboard', label: 'Inicio', icon: LayoutDashboard, end: true },
   { to: '/facturas', label: 'Facturas', icon: Receipt },
-  { to: '/medicamentos', label: 'Medicamentos', icon: FlaskConical },
+  { to: '/medicamentos', label: 'Inventario Medicamentos', icon: FlaskConical },
+  { to: '/cotizaciones', label: 'Cotizaciones', icon: ClipboardList },
 ]
 
 export default function RootLayout() {

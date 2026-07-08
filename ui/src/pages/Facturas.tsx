@@ -11,7 +11,7 @@ import { useTema } from '../context/TemaContext'
 import { useAuth } from '../context/AuthContext'
 import FacturaPDF from '../components/pdf/FacturaPDF'
 
-const LIMIT = 20
+const LIMIT = 10
 
 export default function Facturas() {
   const qc = useQueryClient()
@@ -153,8 +153,8 @@ export default function Facturas() {
       ) : (
         <div className="card-farm" style={{ overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--farm-font-sm)' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--farm-border)' }}>
+            <thead className="thead-sticky border-b" style={{ borderColor: 'var(--farm-border)' }}>
+              <tr>
                 <th className="th-farm">Número</th>
                 <th className="th-farm">Paciente</th>
                 <th className="th-farm">Fecha</th>
@@ -162,7 +162,7 @@ export default function Facturas() {
                 <th className="th-farm"></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y" style={{ borderColor: 'var(--farm-border)' }}>
               {facturas.length === 0 ? (
                 <tr>
                   <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--farm-text-muted)' }}>
@@ -173,7 +173,7 @@ export default function Facturas() {
                 const anulada = f.estado === 'anulada'
                 const isLoading = (k: string) => printing === f.id + k
                 return (
-                  <tr key={f.id} style={{ borderBottom: '1px solid var(--farm-border)', opacity: anulada ? 0.55 : 1 }}>
+                  <tr key={f.id} className="fila-farm" style={{ opacity: anulada ? 0.55 : 1 }}>
                     <td className="td-farm">
                       <span style={{ fontFamily: 'monospace', fontWeight: 600, textDecoration: anulada ? 'line-through' : 'none' }}>
                         {f.numero}
@@ -283,16 +283,16 @@ export default function Facturas() {
             </div>
 
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--farm-font-sm)', marginBottom: '1rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--farm-border)' }}>
+              <thead className="thead-sticky border-b" style={{ borderColor: 'var(--farm-border)' }}>
+                <tr>
                   {['Medicamento', 'Cant.', 'Precio unit.', 'Subtotal'].map(h => (
                     <th key={h} className="th-farm">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y" style={{ borderColor: 'var(--farm-border)' }}>
                 {detalle.items.map(item => (
-                  <tr key={item.id} style={{ borderBottom: '1px solid var(--farm-border)' }}>
+                  <tr key={item.id}>
                     <td className="td-farm">
                       <div style={{ fontWeight: 500 }}>{item.nombre_medicamento}</div>
                       {(item.concentracion || item.forma_farmaceutica) && (

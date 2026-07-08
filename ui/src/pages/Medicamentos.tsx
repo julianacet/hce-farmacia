@@ -14,7 +14,7 @@ import { useDebounced } from '../hooks/useDebounced'
 import { useAuth } from '../context/AuthContext'
 
 type Tipo = 'pos' | 'no_pos' | ''
-const LIMIT = 20
+const LIMIT = 10
 
 export default function Medicamentos() {
   const { tieneRol } = useAuth()
@@ -97,9 +97,9 @@ export default function Medicamentos() {
 
   return (
     <div className="page-farm">
-      <Breadcrumb items={[{ label: 'Inicio', to: '/dashboard' }, { label: 'Medicamentos' }]} />
+      <Breadcrumb items={[{ label: 'Inicio', to: '/dashboard' }, { label: 'Inventario Medicamentos' }]} />
       <div className="page-header">
-        <h1 className="page-title">Medicamentos</h1>
+        <h1 className="page-title">Inventario Medicamentos</h1>
       </div>
 
       {/* Barra de búsqueda */}
@@ -159,8 +159,8 @@ export default function Medicamentos() {
           </div>
         ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--farm-font-sm)' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--farm-border)' }}>
+            <thead className="thead-sticky border-b" style={{ borderColor: 'var(--farm-border)' }}>
+              <tr>
                 <th className="th-farm">Medicamento</th>
                 <th className="th-farm">Concentración</th>
                 <th className="th-farm">Forma</th>
@@ -169,7 +169,7 @@ export default function Medicamentos() {
                 {esAdmin && <th className="th-farm" />}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y" style={{ borderColor: 'var(--farm-border)' }}>
               {medicamentos.length === 0 ? (
                 <tr>
                   <td colSpan={esAdmin ? 6 : 5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--farm-text-muted)' }}>
@@ -178,7 +178,7 @@ export default function Medicamentos() {
                 </tr>
               ) : (
                 medicamentos.map(m => (
-                  <tr key={m.id} style={{ borderBottom: '1px solid var(--farm-border)' }}>
+                  <tr key={m.id} className="fila-farm">
                     <td className="td-farm" style={{ fontWeight: 500 }}>
                       {m.nombre}
                       {m.codigo && (
