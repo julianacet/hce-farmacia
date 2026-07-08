@@ -114,8 +114,8 @@ export default function NuevaFactura() {
 
           {items.length > 0 && (
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--farm-font-sm)' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--farm-border)' }}>
+              <thead className="thead-sticky border-b" style={{ borderColor: 'var(--farm-border)' }}>
+                <tr>
                   <th className="th-farm">Medicamento</th>
                   <th className="th-farm">Concentración</th>
                   <th className="th-farm">Forma</th>
@@ -125,11 +125,11 @@ export default function NuevaFactura() {
                   <th className="th-farm"></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y" style={{ borderColor: 'var(--farm-border)' }}>
                 {items.map(item => {
                   const sub = item.cantidad * item.precio_unitario
                   return (
-                    <tr key={item._key} style={{ borderBottom: '1px solid var(--farm-border)' }}>
+                    <tr key={item._key}>
                       <td className="td-farm" style={{ fontWeight: 500 }}>{item.nombre_medicamento}</td>
                       <td className="td-farm">
                         <input

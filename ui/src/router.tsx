@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Facturas from './pages/Facturas'
 import NuevaFactura from './pages/NuevaFactura'
 import Medicamentos from './pages/Medicamentos'
+import Cotizaciones from './pages/Cotizaciones'
 
 const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
           { path: 'facturas', element: <Facturas /> },
           { path: 'facturas/nueva', element: <NuevaFactura /> },
           { path: 'medicamentos', element: <Medicamentos /> },
+          { path: 'cotizaciones', element: <Cotizaciones /> },
         ],
       },
     ],
