@@ -238,9 +238,9 @@ export default function FacturaPDF({
         ) : null}
 
 
-        {/* Marca de agua anulada */}
+        {/* Marca de agua anulada, fija: se repite en todas las páginas */}
         {anulada && (
-          <View style={s.watermark}>
+          <View fixed style={s.watermark}>
             <Text style={s.watermarkText}>ANULADA</Text>
           </View>
         )}
