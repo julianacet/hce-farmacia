@@ -55,7 +55,11 @@ Name: "{app}\logs"
 [Icons]
 Name: "{group}\Abrir HCE Farmacia";          Filename: "{app}\farm-web.exe"; WorkingDir: "{app}"; IconFilename: "{app}\farm.ico"
 Name: "{group}\Desinstalar HCE Farmacia";    Filename: "{uninstallexe}"
-Name: "{commondesktop}\HCE Farmacia";        Filename: "{app}\farm-web.exe"; WorkingDir: "{app}"; IconFilename: "{app}\farm.ico"; Tasks: desktopicon
+; Solo se crea en la primera instalación (config.bat aún no existe). Si se
+; recreara en cada actualización, un usuario que renombró el acceso directo
+; terminaría con dos íconos: el suyo renombrado + uno nuevo con el nombre
+; por defecto reapareciendo tras cada "Actualizar".
+Name: "{commondesktop}\HCE Farmacia";        Filename: "{app}\farm-web.exe"; WorkingDir: "{app}"; IconFilename: "{app}\farm.ico"; Tasks: desktopicon; Check: not FileExists(ExpandConstant('{app}\config.bat'))
 
 [Tasks]
 Name: "desktopicon"; Description: "Crear acceso directo en el escritorio"; GroupDescription: "Iconos adicionales:"
